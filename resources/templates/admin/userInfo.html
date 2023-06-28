@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+    <title>校园二手物品后台</title>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"/>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">校园二手物品后台</div>
+        <!-- 头部区域（可配合layui已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <li class="layui-nav-item"><a href="/admin/userinit">用户管理</a></li>
+            <li class="layui-nav-item"><a href="/admin/init">商品管理</a></li>
+            <li class="layui-nav-item"><a href="/admin/shoppingCarInit">购物车管理</a></li>
+            <li class="layui-nav-item">
+                <a href="javascript:;">订单管理</a>
+                <dl class="layui-nav-child">
+                    <dd><a th:href="@{/admin/BuyOrderInit}">我是买家</a></dd>
+                    <dd><a th:href="@{/admin/SellOrderInit}">我是卖家</a></dd>
+                </dl>
+            </li>
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:">
+                    <img th:src= "${user.u_Url}" class="layui-nav-img">
+                    我的
+                </a>
+                <dl class="layui-nav-child">
+                    <dd><a href="#">基本资料</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="/admin/quit">退了</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">所有商品</a>
+                </li>
+                <li class="layui-nav-item"><a th:href="@{/showAll}">返回前台</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body" >
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <div class=""><!-- 个人信息 -->
+                <form class="layui-form" >
+                    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                        <legend>个人信息</legend>
+                    </fieldset>
+                    <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">头像:</label>
+                        <a src="go()" style="cursor: pointer">
+                            <img class="layui-upload-img" th:src="${user.u_Url}" width="100px" height="100px" alt="点击上传" title="点击修改" onclick="go()">
+                        </a>
+                    </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">账号:</label>
+                            <div class="layui-input-inline">
+                                <input th:value="${user.u_Account}" type="text" name="u_Account" readonly  autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用户名:</label>
+                            <div class="layui-input-inline">
+                                <input th:value="${user.u_Name}" type="text" name="u_Name" required lay-verify="required" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">邮箱:</label>
+                            <div class="layui-input-inline">
+                                <input th:value="${user.u_Email}" type="text" name="u_Email" required lay-verify="email" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label">电话号码:</label>
+                            <div class="layui-input-inline">
+                                <input type="text" th:value="${user.u_Phone}" name="u_Phone" required lay-verify="phone" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">性别:</label>
+                            <div class="layui-input-inline">
+                                <input type="radio" name="u_Sex" value="nan" title="男" checked>
+                                <input type="radio" name="u_Sex" value="女" title="女">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">
+                            <button lay-submit lay-filter="userInfo" class="layui-btn layui-btn-radius">保存</button>
+                        </label>
+                    </div>
+                </form>
+            </div>
+    </div>
+
+    <div class="layui-footer">
+        ©
+    </div>
+</div>
+<script th:src="@{/layui/layui.js}"></script>
+<script th:inline="none">
+    //JavaScript代码区域
+    layui.use(['element','form','layer'], function(){
+        const element = layui.element;
+        const form = layui.form;
+        const layer = layui.layer;
+        const $ = layui.$;
+
+        form.on('submit(userInfo)', function(data){ <!-- 监听个人信息的修改 -->
+            const field = data.field;
+            console.log(field);
+            $.ajax({
+                url: 'userUpdate',
+                type: 'POST',
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(field),
+                success:function (res){
+                    if(res.code === 200){
+                        layer.msg(res.msg);
+                    }else if(res.code === 500){
+                        layer.msg(res.msg);
+                    }
+                },
+                error: function (res){
+                    layer.msg('请求出错！');
+                }
+            });
+            window.setTimeout("toAdmin()" ,1500); <!-- 转跳 -->
+            return false;
+        });
+
+        form.on('submit(passwordUpdate)', function (data){ <!-- 监听密码的修改 -->
+            const field = data.field;
+            $.ajax({
+                url: 'passwordUpdate',
+                type: 'POST',
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(field),
+                success: function (res){
+                    if(res.code === 200){
+                        layer.msg(res.msg);
+                    }else if(res.code === 500){
+                        layer.msg(res.msg);
+                    }
+                },
+                error: function (res){
+                    layer.msg('请求出错！');
+                }
+            });
+            window.setTimeout("toAdmin()" ,1500); <!-- 转跳 -->
+            return false;
+        });
+
+        form.on('submit(addressUpdate)',function (data){ <!-- 收货地址更改 -->
+            const field = data.field;
+            $.ajax({
+                url: 'addressUpdate',
+                type: 'POST',
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(field),
+                success: function (res){
+                    if(res.code === 200){
+                        layer.msg(res.msg);
+                    }else if(res.code === 500){
+                        layer.msg(res.msg);
+                    }
+                },
+                error: function (res){
+                    layer.msg('请求出错！');
+                }
+            });
+            window.setTimeout("toAdmin()" ,1500); <!-- 转跳 -->
+            return false;
+        });
+    });
+
+    function toAdmin(){ <!-- 转跳 -->
+        window.location.href = '/admin/userInfo';
+    }
+    function go(){
+        layui.use('layer', function(){
+            var layer = layui.layer;
+            layer.open({
+                title: false,
+                type:2,
+                area: ['500px', '500px'],
+                content:"/admin/userhead",
+            });
+        });
+    }
+</script>
+</body>
+</html>
